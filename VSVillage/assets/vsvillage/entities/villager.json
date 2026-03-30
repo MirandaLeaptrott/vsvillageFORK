@@ -26,10 +26,10 @@
 					"game:sounds/voice/oboe/"
 				]
 		},
-		"personality": "balanced",
 		"personalities": {
-			"balanced": { "chordDelayMul": 1.3, "pitchModifier": 0.7, "volumneModifier": 1.1 }
-		},
+    "balanced": { "chordDelayMul": 1.3, "pitchModifier": 0.7, "volumneModifier": 1.1 },
+    "elderbalanced": { "chordDelayMul": 1.8, "pitchModifier": 0.6, "volumneModifier": 1.0 }
+},
 		"shouldSwivelFromMotion": false,
         "outfitConfigFileName": "villageraccessories-{sex}",
 		"partialRandomOutfits": 
