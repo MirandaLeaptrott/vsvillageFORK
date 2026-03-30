@@ -205,7 +205,7 @@
 			{ "code": "villagerinventory" },
 			{ "code": "nametag", "showtagonlywhentargeted": true },
 			{ "code": "repulseagents" },
-			{ "code": "controlledphysics", "stepHeight": 1.01 },
+			{ "code": "controlledphysics", "stepHeight": 1.2 },
 			{ "code": "interpolateposition" },
 			{
 				"code": "Villager",
@@ -652,9 +652,72 @@
 		},
 		"behaviors": [
 			{ "code": "villagerinventory" },
-			{ "code": "nametag", "showtagonlywhentargeted": true, "selectFromRandomNameByType": {"*-male-*": ["Aphid", "Erik", "Adachi", "Farhad", "Pegalesharro", "Floyd", "Temper", "En Repos", "Alanus", "Baldrich", "Cuno", "Dominicus", "Ludwig", "Lambert", "Geralt", "Richard", "Wolfram", "Zachäus", "Pippin", "Frodo", "Baggins", "Rudolf", "Marcus", "Benjamin", "Cronos", "Timoleon", "Leonidas", "Xerxes", "Brutus", "William", "Maurinus", "Hubertus"], "*-female-*": ["Anne", "Agnes", "Adachi", "Farhad", "Bianca", "Hedwig", "Demud", "Imagina", "Johanna", "Judith", "Magdalena", "Philippa", "Methild", "Violante", "Walpurga", "Josephine", "Joana", "Yvonne", "Lisbeth", "Dione", "Diana", "Olivia", "Hermine", "Triss", "Yennefer", "Lucia", "Mirella", "Bernadetta", "Tacia"]}},
+			 {
+  "code": "nametag",
+  "showtagonlywhentargeted": true,
+  "selectFromRandomNameByType": {
+    "*-male-*": [
+      "Aphid", "Erik", "Adachi", "Farhad", "Pegalesharro", "Floyd", "Temper", "En Repos",
+      "Alanus", "Baldrich", "Cuno", "Dominicus", "Ludwig", "Lambert", "Geralt", "Richard",
+      "Wolfram", "Zachäus", "Pippin", "Frodo", "Baggins", "Rudolf", "Marcus", "Benjamin",
+      "Cronos", "Timoleon", "Leonidas", "Xerxes", "Brutus", "William", "Maurinus", "Hubertus",
+
+      "Alaric", "Benedict", "Cassian", "Dorian", "Edric", "Falk", "Gareth", "Hadrian",
+      "Isembard", "Jasper", "Korin", "Lucan", "Matthis", "Nestor", "Osmund", "Percival",
+      "Quentin", "Roland", "Sebastian", "Tobias", "Ulric", "Valerian", "Wystan", "Yorick",
+      "Zephyr", "Cedric", "Drustan", "Erasmus", "Ferdinand", "Gregor", "Henrik", "Julian",
+      "Konrad", "Leopold", "Magnus", "Niklas", "Octavian", "Philipp", "Rainer", "Sigmund",
+      "Theobald", "Viktor", "Wilhelm", "Zeno",
+
+      "Amir", "Hassan", "Yusuf", "Karim", "Rashid", "Jamal", "Nabil", "Faisal", "Khalid",
+      "Omar", "Samir", "Tariq", "Zahir", "Basim", "Idris", "Malik", "Nasir", "Salim",
+      "Hakim", "Farid", "Aziz", "Ibrahim", "Musa", "Ismail", "Suleiman", "Hamza", "Bilal",
+      "Qasim", "Adnan", "Zayed", "Arman", "Reza", "Navid", "Mehrdad", "Kamran", "Parviz",
+
+      "Darius", "Cyrus", "Arash", "Kaveh", "Ramin", "Soroush", "Babak", "Rostam",
+      "Aleksander", "Marek", "Pavel", "Rurik", "Veselin", "Boris", "Ilia", "Mikhail",
+      "Sorin", "Dragomir", "Andrei", "Bogdan", "Nikola",
+
+      "Santiago", "Mateo", "Rafael", "Diego", "Lucio", "Marco", "Enzo", "Paolo", "Gianni",
+      "Alonso", "Esteban", "Hector", "Tomas", "Iker", "Javier"
+    ],
+
+    "*-female-*": [
+      "Anne", "Agnes", "Adachi", "Farhad", "Bianca", "Hedwig", "Demud", "Imagina", "Johanna",
+      "Judith", "Magdalena", "Philippa", "Methild", "Violante", "Walpurga", "Josephine",
+      "Joana", "Yvonne", "Lisbeth", "Dione", "Diana", "Olivia", "Hermine", "Triss",
+      "Yennefer", "Lucia", "Mirella", "Bernadetta", "Tacia",
+
+      "Adelheid", "Beatrix", "Clarissa", "Dorothea", "Elisabet", "Felicity", "Gisela",
+      "Helena", "Isolde", "Juliana", "Katarina", "Leonie", "Maribel", "Nerissa", "Odette",
+      "Petra", "Rosalind", "Sabina", "Theresa", "Ulrika", "Valeria", "Winifred", "Zinnia",
+
+      "Amina", "Layla", "Nadia", "Samira", "Farah", "Zahra", "Mariam", "Yasmin", "Hana",
+      "Rania", "Dalia", "Salma", "Khadija", "Noor", "Iman", "Sahar", "Leila", "Aaliyah",
+      "Amira", "Hiba", "Noura", "Sanaa", "Zainab", "Basira", "Karima", "Latifa",
+
+      "Parisa", "Shirin", "Anahita", "Laleh", "Roxana", "Mitra", "Golnar", "Nasrin",
+      "Soraya", "Yalda",
+
+      "Elena", "Irina", "Svetlana", "Katya", "Milena", "Anya", "Daria", "Vesna", "Zora",
+      "Radka", "Katerina", "Bogdana",
+
+      "Isabella", "Sofia", "Camila", "Valentina", "Marina", "Elisa", "Francesca", "Paola",
+      "Daniela", "Rosa", "Luciana", "Teresa", "Ines", "Pilar", "Alma"
+    ]
+  }
+},
+
+{
+				"code": "activitydriven",
+				"activityCollectionPathByType": {
+					"*": "working-villager"
+				}
+			},
+
 			{ "code": "repulseagents" },
-			{ "code": "controlledphysics", "stepHeight": 1.01 },
+                        { "code": "safeonhurt" },
+			{ "code": "controlledphysics", "stepHeight": 1.2 },
 			{ "code": "health", "currenthealthByType": {"*-smith": 30, "*-soldier": 40, "*": 20 }, "maxhealthByType": {"*-smith": 30, "*-soldier": 40, "*": 20}},
 			{
 				"code": "emotionstates",
@@ -668,93 +731,213 @@
                 "hoursToDecay": 96,
                 "decayedBlock": "drycarcass-humanoid1"
             },
-            {
-				"code": "activitydriven",
-				"activityCollectionPathByType": {
-					"*": "working-villager"
-				}
+
+{
+	"code": "taskai",
+	"aitasks": [
+		{
+			"code": "villagermeleeattack",
+			"entityCodes": ["bandit-*", "lonehuntergoblin-*", "ork-*", "surfacegoblin-*", "drifter-*", "shiver-*", "bowtorn-*", "direwolf-male", "direwolf-female", "hellboar-male", "hellboar-female","bear-*", "wolf-male", "wolf-female"],
+			"priority": 2,
+			"damageByType": { "*-soldier": 12, "*-archer": 6, "*": 4 },
+			"damageTierByType":{ "*-soldier": 2, "*-archer": 2, "*": 0},
+			"mincooldown": 1500,
+			"maxcooldown": 2500,
+			"attackDurationMs": 900,
+			"animationByType": { "*-archer": "BowAim", "*": "Attack" },
+			"stabanimation": "SpearStab",
+			"stabanimationspeed": 0.7,
+			"slashanimation": "SwordHit",
+			"slashanimationspeed": 0.7,
+			"animationSpeedByType": { "*-archer": 1, "*":  2 },
+			"durationMs": 1300,
+			"releaseAtMs": 1000,
+			"seekingRange": 25,
+			"animationRelase": "BowHit",
+			"drawingsound": "game:sounds/bow-draw.ogg",
+			"shootingsound": "game:sounds/bow-release.ogg",
+			"projectile": "game:arrow-iron"
+		},
+		{
+			"code": "seekentity",
+			"entityCodesByType": {
+				"*-soldier": ["bandit-*", "lonehuntergoblin-*", "ork-*", "surfacegoblin-*", "drifter-*", "shiver-*", "bowtorn-*", "direwolf-male", "direwolf-female", "hellboar-male", "hellboar-female","bear-*", "wolf-male", "wolf-female"],
+				"*": ["bandit-*", "surfacegoblin-*", "wolf-male", "wolf-female"]
 			},
-			{
-				"code": "taskai",
-				"aitasks": [
-					{
-						"code": "meleeattack",
-						"entityCodes": ["player"],
-						"priority": 2,
-						"damage": 5,
-						"mincooldown": 2500,
-						"maxcooldown": 3500,
-						"attackDurationMs": 900,
-						"damagePlayerAtMs": 300,
-						"animation": "spear-attack",
-						"animationSpeed": 2,
-						"whenInEmotionState": "aggressiveondamage"
-					},
-					{
-						"code": "seekentity",
-						"entityCodes": ["player"],
-						"priority": 1.5,
-						"mincooldown": 1000,
-						"maxcooldown": 1500,
-						"seekingRange": 20,
-						"movespeed": 0.035,
-						"animation": "Run",
-						"animationSpeed": 1.75,
-						"whenInEmotionState": "aggressiveondamage"
-					},
-					{
-						"code": "fleeentity",
-						"entityCodes": ["player"],
-						"priority": 1.5,
-						"movespeed": 0.035,
-						"seekingRange": 12,
-						"animation": "Run",
-						"animationSpeed": 1.75,
-						"whenInEmotionState": "fleeondamage"
-					},
-					{
-						"code": "fleeentity",
-						"entityCodes": ["drifter-*", "shiver-*", "bowtorn-*"],
-						"priority": 1.49,
-						"movespeed": 0.035,
-						"seekingRange": 6,
-						"animation": "Run",
-						"animationSpeed": 1.75
-					},
-					{
-						"code": "idle",
-						"priority": 1.2,
-						"minduration": 2500,
-						"maxduration": 2500,
-						"mincooldown": 2000,
-						"maxcooldown": 10000,
-						"animation": "laugh"
-					},
-					{
-						"code": "idle",
-						"priority": 1.2,
-						"minduration": 2500,
-						"maxduration": 2500,
-						"mincooldown": 5000,
-						"maxcooldown": 30000,
-						"animation": "idle2"
-					},
-					{
-						"code": "wander",
-						"priority": 1.0,
-						"movespeed": 0.01,
-						"animation": "Walk",
-						"wanderChance": 0.005,
-						"maxDistanceToSpawn": 15,
-						"wanderRangeMin": 1,
-						"wanderRangeMax": 3
-					},
-					{
-						"code": "lookaround",
-						"priority": 0.5
-					}
-				]
+			"priority": 5,
+			"mincooldown": 1000,
+			"maxcooldown": 1500,
+			"seekingRange": 12,
+			"minRangeByType": { "*-archer": 8, "*": 0 },
+			"movespeed": 0.008,
+			"animation": "Run",
+			"animationSpeed": 1.75
+		},
+		{
+			"code": "fleeentity",
+			"entityCodesByType": {
+				"*-soldier": [],
+				"*": ["drifter-*", "locust-*", "shiver-*", "bowtorn-*", "bear-*", "wolf-male", "wolf-female", "ork-*", "direwolf-*", "hellboar-*", "bear-*"]
 			},
+			"priority": 10,
+			"movespeed": 0.008,
+			"seekingRange": 4,
+                        "animation": "Run",
+			"animationByType": { "*-archer": "Run", "*-soldier": "Run", "*": "Run" },
+			"animationSpeed": 1.75
+		},
+		{
+			"code": "villagersleep",
+			"priority": 9.0,
+			"movespeed": 0.008,
+			"animation": "Walk",
+			"duringDayTimeFrames": [ { "fromHour": 21.5, "toHour": 6 }],
+			"mincooldown": 5000,
+			"maxcooldown": 10000
+		},
+		{
+			"code": "villagerhealwounded",
+			"slot": 1,
+			"minduration": 5000,
+			"maxduration": 8000,
+			"mincooldown": 45000,
+			"maxcooldown": 90000,
+			"maxdistance": 15,
+			"animation": "walk",
+			"animationSpeed": 1,
+			"priority": 7.5,
+			"movespeed": 0.008
+		},
+		{
+			"code": "villagergotowork",
+			"priority": 5.5,
+			"movespeed": 0.008,
+			"animation": "Walk",
+			"minduration": 4000,
+			"maxduration": 6000,
+			"mincooldown": 20000,
+			"maxcooldown": 45000,
+			"duringDayTimeFrames": [ { "fromHour": 7, "toHour": 16.9 } ],
+			"maxdistance": 75
+		},
+		{
+			"code": "villagerfilltrough",
+			"minduration": 4000,
+			"maxduration": 6000,
+			"mincooldown": 40000,
+			"maxcooldown": 80000,
+			"maxdistance": 20,
+			"animation": "walk",
+			"animationSpeed": 1,
+			"priority": 5.0,
+			"movespeed": 0.008,
+			"duringDayTimeFrames": [ { "fromHour": 8, "toHour": 16 } ]
+		},
+{
+    "code": "villagercultivatecrops",
+    "minduration": 4000,
+    "maxduration": 6000,
+    "mincooldown": 15000,         
+    "maxcooldown": 30000,        
+    "maxdistance": 20,
+    "animation": "walk",
+    "animationSpeed": 1,
+    "priority": 5.0,
+    "movespeed": 0.008,
+    "farmlandCooldownSeconds": 20, 
+    "duringDayTimeFrames": [ { "fromHour": 7.5, "toHour": 16 } ]
+},
+
+
+
+{
+    "code": "villagerwander",
+    "priority": 4.8,
+    "moveSpeed": 0.005,
+    "animation": "walk",
+    "wanderRange": 15,
+    "wanderCooldownSeconds": 30,
+    "entitySuffix": "-shepherd",
+    "duringDayTimeFrames": [ { "fromHour": 8, "toHour": 16 } ]
+},
+
+		{
+			"code": "villagergotogather",
+ 
+			"priority": 5.5,
+			"movespeed": 0.008,
+			"animation": "walk",
+			"minduration": 4000,
+			"maxduration": 6000,
+			"mincooldown": 25000,
+			"maxcooldown": 50000,
+			"duringDayTimeFrames": [ { "fromHour": 17, "toHour": 20.9 } ],
+			"maxdistance": 75
+		},
+		{
+			"code": "villagersocialize",
+			"slot": 1,
+			"priority": 2.5,
+			"mincooldown": 15000,
+			"maxcooldown": 45000,
+			"minduration": 3000,
+			"maxduration": 8000,
+			"movespeed": 0.008,
+			"animation": "Walk",
+			"interact": "welcome",
+			"duringDayTimeFrames": [ 
+				{ "fromHour": 7, "toHour": 20.5 }
+			]
+		},
+		{
+			"code": "idle",
+			"priority": 1.0,
+			"minduration": 2000,
+			"maxduration": 4000,
+			"mincooldown": 20000,
+			"maxcooldown": 60000,
+			"animation": "idleyawn"
+		},
+		{
+			"code": "idle",
+			"priority": 1.0,
+			"minduration": 2000,
+			"maxduration": 4000,
+			"mincooldown": 25000,
+			"maxcooldown": 70000,
+			"animation": "idlescratchhead"
+		},
+		{
+			"code": "idle",
+			"priority": 0.7,
+			"minduration": 3000,
+			"maxduration": 6000,
+			"mincooldown": 15000,
+			"maxcooldown": 40000,
+			"animation": "idlelook"
+		},
+
+		{
+			"code": "idle",
+			"priority": 0.5,
+			"minduration": 5000,
+			"maxduration": 12000,
+			"mincooldown": 10000,
+			"maxcooldown": 40000,
+			"animation": "idle"
+		},
+		{
+			"code": "lookaround",
+			"priority": 0.3,
+			"minduration": 3000,
+			"maxduration": 6000,
+			"mincooldown": 15000,
+			"maxcooldown": 45000
+		}
+	]
+},
+
+
 			{
 				"code": "Villager",
 				"professionByType": {
