@@ -45,12 +45,14 @@ namespace VsVillage
             VillageType = type;
             foreach (var group in type.StructureGroups)
             {
-                if(group.MatchingStructures.Count == 0){
+                if (group.MatchingStructures.Count == 0)
+                {
                     api.Logger.Error("Could not find any matching structures for group {0}!", group.Code);
                     continue;
                 }
-                int amount = rand.NextInt(group.MaxStructuresPerVillage + 1 - group.MinStructuresPerVillage) + group.MinStructuresPerVillage;
-                for (int i = 0; i < amount; i++)
+                int range = Math.Max(1, group.MaxStructuresPerVillage + 1 - group.MinStructuresPerVillage);
+                int num = rand.NextInt(range) + group.MinStructuresPerVillage;
+                for (int i = 0; i < num; i++)
                 {
                     tryAddStructure(group.MatchingStructures[rand.NextInt(group.MatchingStructures.Count)], rand);
                 }
@@ -168,68 +170,77 @@ namespace VsVillage
         //always go from biggest to smallest structure, otherwise this might break
         public bool tryAddStructure(WorldGenVillageStructure structure, LCGRandom random)
         {
-            int orientation = random.NextInt(4);
+            int num = random.NextInt(4);
             switch (structure.Size)
             {
-                case EnumVillageStructureSize.LARGE:
-                    if (capacity < 16) { return false; }
-                    else
+                case EnumVillageStructureSize.SMALL:
                     {
-                        var free = new List<Vec2i>();
-                        for (int i = 0; i < width / 8; i++)
+                        if (this.capacity < 1)
                         {
-                            for (int k = 0; k < height / 8; k++)
+                            return false;
+                        }
+                        List<Vec2i> list = new List<Vec2i>();
+                        for (int i = 0; i < this.width / 2; i++)
+                        {
+                            for (int j = 0; j < this.height / 2; j++)
                             {
-                                if (BigSlotAvailable(i, k))
+                                if (this.SmallSlotAvailable(i, j))
                                 {
-                                    free.Add(new Vec2i(i, k));
+                                    list.Add(new Vec2i(i, j));
                                 }
                             }
                         }
-                        var xy = free[random.NextInt(free.Count)];
-                        AddBigStructure(structure, xy.X, xy.Y, orientation);
+                        if (list.Count == 0) return false;
+                        Vec2i vec2i = list[random.NextInt(list.Count)];
+                        this.AddSmallStructure(structure, vec2i.X, vec2i.Y, num);
                         return true;
                     }
                 case EnumVillageStructureSize.MEDIUM:
-                    if (capacity < 4) { return false; }
-                    else
                     {
-                        var free = new List<Vec2i>();
-                        for (int i = 0; i < width / 4; i++)
+                        if (this.capacity < 4)
                         {
-                            for (int k = 0; k < height / 4; k++)
+                            return false;
+                        }
+                        List<Vec2i> list2 = new List<Vec2i>();
+                        for (int k = 0; k < this.width / 4; k++)
+                        {
+                            for (int l = 0; l < this.height / 4; l++)
                             {
-                                if (MediumSlotAvailable(i, k))
+                                if (this.MediumSlotAvailable(k, l))
                                 {
-                                    free.Add(new Vec2i(i, k));
+                                    list2.Add(new Vec2i(k, l));
                                 }
                             }
                         }
-                        var xy = free[random.NextInt(free.Count)];
-                        AddMediumStructure(structure, xy.X, xy.Y, orientation);
+                        if (list2.Count == 0) return false;
+                        Vec2i vec2i2 = list2[random.NextInt(list2.Count)];
+                        this.AddMediumStructure(structure, vec2i2.X, vec2i2.Y, num);
                         return true;
                     }
-                case EnumVillageStructureSize.SMALL:
-                    if (capacity < 1) { return false; }
-                    else
+                case EnumVillageStructureSize.LARGE:
                     {
-                        var free = new List<Vec2i>();
-                        for (int i = 0; i < width / 2; i++)
+                        if (this.capacity < 16)
                         {
-                            for (int k = 0; k < height / 2; k++)
+                            return false;
+                        }
+                        List<Vec2i> list3 = new List<Vec2i>();
+                        for (int m = 0; m < this.width / 8; m++)
+                        {
+                            for (int n = 0; n < this.height / 8; n++)
                             {
-                                if (SmallSlotAvailable(i, k))
+                                if (this.BigSlotAvailable(m, n))
                                 {
-                                    free.Add(new Vec2i(i, k));
+                                    list3.Add(new Vec2i(m, n));
                                 }
                             }
                         }
-                        var xy = free[random.NextInt(free.Count)];
-                        AddSmallStructure(structure, xy.X, xy.Y, orientation);
+                        if (list3.Count == 0) return false;
+                        Vec2i vec2i3 = list3[random.NextInt(list3.Count)];
+                        this.AddBigStructure(structure, vec2i3.X, vec2i3.Y, num);
                         return true;
                     }
-                default: return false;
-
+                default:
+                    return false;
             }
         }
 
