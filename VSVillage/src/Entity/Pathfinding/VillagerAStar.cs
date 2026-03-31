@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Vintagestory.API.Common;
 using Vintagestory.API.MathTools;
@@ -6,246 +6,300 @@ using Vintagestory.Essentials;
 
 namespace VsVillage
 {
-    public class VillagerAStar
-    {
-        protected ICoreAPI api;
-        protected ICachingBlockAccessor blockAccess;
+	// Token: 0x02000027 RID: 39
+	public class VillagerAStar
+	{
+		// Token: 0x17000021 RID: 33
+		// (get) Token: 0x0600011B RID: 283 RVA: 0x00002C1F File Offset: 0x00000E1F
+		// (set) Token: 0x0600011C RID: 284 RVA: 0x00002C27 File Offset: 0x00000E27
+		public List<string> traversableCodes { get; set; } = new List<string> { "door", "gate", "ladder", "multiblock" };
 
-        public List<string> traversableCodes { get; set; } = new List<string>() { "door", "gate", "ladder", "multiblock" };
+		// Token: 0x17000022 RID: 34
+		// (get) Token: 0x0600011D RID: 285 RVA: 0x00002C30 File Offset: 0x00000E30
+		// (set) Token: 0x0600011E RID: 286 RVA: 0x00002C38 File Offset: 0x00000E38
+		public List<string> climbableCodes { get; set; } = new List<string> { "ladder" };
 
-        public List<string> climbableCodes { get; set; } = new List<string>() { "ladder" };
-        public List<string> steppableCodes { get; set; } = new List<string>() { "stair", "path", "bed-", "farmland", "slab" };
+		// Token: 0x17000023 RID: 35
+		// (get) Token: 0x0600011F RID: 287 RVA: 0x00002C41 File Offset: 0x00000E41
+		// (set) Token: 0x06000120 RID: 288 RVA: 0x00002C49 File Offset: 0x00000E49
+		public List<string> steppableCodes { get; set; } = new List<string> { "stair", "path", "bed-", "farmland", "slab" };
 
-        public int NodesChecked;
+		// Token: 0x06000121 RID: 289 RVA: 0x00009E58 File Offset: 0x00008058
+		public VillagerAStar(ICoreAPI api)
+		{
+			this.api = api;
+			this.blockAccess = api.World.GetCachingBlockAccessor(true, true);
+		}
 
-        public const double centerOffsetX = 0.5;
-        public const double centerOffsetZ = 0.5;
+		// Token: 0x06000122 RID: 290 RVA: 0x00009F2C File Offset: 0x0000812C
+		public List<PathNode> FindPath(BlockPos start, BlockPos end, int maxFallHeight, float stepHeight, int searchDepth = 999, bool allowReachAlmost = true)
+		{
+			this.blockAccess.Begin();
+			this.NodesChecked = 0;
+			PathNode pathNode = new PathNode(start);
+			PathNode pathNode2 = new PathNode(end);
+			this.openSet.Clear();
+			this.closedSet.Clear();
+			this.openSet.Add(pathNode);
+			while (this.openSet.Count > 0)
+			{
+				int nodesChecked = this.NodesChecked;
+				this.NodesChecked = nodesChecked + 1;
+				if (nodesChecked > searchDepth)
+				{
+					return null;
+				}
+				PathNode pathNode3 = this.openSet.RemoveNearest();
+				this.closedSet.Add(pathNode3);
+				if (pathNode3 == pathNode2 || (allowReachAlmost && Math.Abs(pathNode3.X - pathNode2.X) <= 1 && Math.Abs(pathNode3.Z - pathNode2.Z) <= 1 && Math.Abs(pathNode3.Y - pathNode2.Y) <= 2))
+				{
+					return this.retracePath(pathNode, pathNode3);
+				}
+				foreach (PathNode pathNode4 in this.findValidNeighbourNodes(pathNode3, pathNode2, stepHeight, maxFallHeight))
+				{
+					float num = 0f;
+					PathNode pathNode5 = this.openSet.TryFindValue(pathNode4);
+					if (pathNode5 != null)
+					{
+						float num2 = pathNode3.gCost + pathNode3.distanceTo(pathNode4);
+						if (pathNode5.gCost > num2 + 0.0001f && this.traversable(pathNode4, pathNode2, stepHeight, maxFallHeight) && pathNode5.gCost > num2 + num + 0.0001f)
+						{
+							this.UpdateNode(pathNode3, pathNode5, num);
+						}
+					}
+					else if (!this.closedSet.Contains(pathNode4) && this.traversable(pathNode4, pathNode2, stepHeight, maxFallHeight))
+					{
+						this.UpdateNode(pathNode3, pathNode4, num);
+						pathNode4.hCost = pathNode4.distanceTo(pathNode2);
+						this.openSet.Add(pathNode4);
+					}
+				}
+			}
+			return null;
+		}
 
-        public VillagerAStar(ICoreAPI api)
-        {
-            this.api = api;
-            blockAccess = api.World.GetCachingBlockAccessor(true, true);
-        }
+		// Token: 0x06000123 RID: 291 RVA: 0x0000A114 File Offset: 0x00008314
+		protected virtual IEnumerable<PathNode> findValidNeighbourNodes(PathNode nearestNode, PathNode targetNode, float stepHeight, int maxFallHeight)
+		{
+			Block current = this.blockAccess.GetBlock(new BlockPos(nearestNode.X, nearestNode.Y, nearestNode.Z, 0));
+			if (this.climbableCodes.Exists((string code) => current.Code.Path.Contains(code)))
+			{
+				string text = current.Variant["side"];
+				Cardinal cardinal;
+				List<PathNode> list;
+				if (!(text == "east"))
+				{
+					if (!(text == "west"))
+					{
+						if (!(text == "south"))
+						{
+							cardinal = Cardinal.North;
+							list = new List<PathNode>(new PathNode[]
+							{
+								new PathNode(nearestNode, Cardinal.East),
+								new PathNode(nearestNode, Cardinal.South),
+								new PathNode(nearestNode, Cardinal.West)
+							});
+						}
+						else
+						{
+							cardinal = Cardinal.South;
+							list = new List<PathNode>(new PathNode[]
+							{
+								new PathNode(nearestNode, Cardinal.North),
+								new PathNode(nearestNode, Cardinal.East),
+								new PathNode(nearestNode, Cardinal.West)
+							});
+						}
+					}
+					else
+					{
+						cardinal = Cardinal.West;
+						list = new List<PathNode>(new PathNode[]
+						{
+							new PathNode(nearestNode, Cardinal.North),
+							new PathNode(nearestNode, Cardinal.East),
+							new PathNode(nearestNode, Cardinal.South)
+						});
+					}
+				}
+				else
+				{
+					cardinal = Cardinal.East;
+					list = new List<PathNode>(new PathNode[]
+					{
+						new PathNode(nearestNode, Cardinal.North),
+						new PathNode(nearestNode, Cardinal.South),
+						new PathNode(nearestNode, Cardinal.West)
+					});
+				}
+				int i = 1;
+				while (this.traversableCodes.Exists((string code) => this.blockAccess.GetBlock(new BlockPos(nearestNode.X, nearestNode.Y + i, nearestNode.Z, 0)).Code.Path.Contains(code)))
+				{
+					int j = i;
+					i = j + 1;
+				}
+				PathNode pathNode = new PathNode(nearestNode, cardinal);
+				pathNode.Y += i;
+				list.Add(pathNode);
+				return list;
+			}
+			return new PathNode[]
+			{
+				new PathNode(nearestNode, Cardinal.North),
+				new PathNode(nearestNode, Cardinal.East),
+				new PathNode(nearestNode, Cardinal.South),
+				new PathNode(nearestNode, Cardinal.West)
+			};
+		}
 
-        public PathNodeSet openSet = new PathNodeSet();
-        public HashSet<PathNode> closedSet = new HashSet<PathNode>();
+		// Token: 0x06000124 RID: 292 RVA: 0x00002C52 File Offset: 0x00000E52
+		private void UpdateNode(PathNode nearestNode, PathNode neighbourNode, float extraCost)
+		{
+			neighbourNode.gCost = nearestNode.gCost + nearestNode.distanceTo(neighbourNode) + extraCost;
+			neighbourNode.Parent = nearestNode;
+			neighbourNode.pathLength = nearestNode.pathLength + 1;
+		}
 
-        public List<PathNode> FindPath(BlockPos start, BlockPos end, int maxFallHeight, float stepHeight, int searchDepth = 999, bool allowReachAlmost = true)
-        {
-            blockAccess.Begin();
+		// Token: 0x06000125 RID: 293 RVA: 0x0000A410 File Offset: 0x00008610
+		protected virtual bool traversable(PathNode node, PathNode target, float stepHeight, int maxFallHeight)
+		{
+			if (target.X == node.X && target.Z == node.Z && target.Y == node.Y)
+			{
+				return true;
+			}
+			if (this.traversable(this.blockAccess.GetBlock(new BlockPos(node.X, node.Y, node.Z, 0))) && this.traversable(this.blockAccess.GetBlock(new BlockPos(node.X, node.Y + 1, node.Z, 0))))
+			{
+				while (0 <= maxFallHeight)
+				{
+					Block block = this.blockAccess.GetBlock(new BlockPos(node.X, node.Y - 1, node.Z, 0));
+					if (this.canStep(block))
+					{
+						return true;
+					}
+					if (!this.traversable(block))
+					{
+						return false;
+					}
+					node.Y--;
+					maxFallHeight--;
+				}
+				while (this.climbableCodes.Exists((string code) => this.blockAccess.GetBlock(new BlockPos(node.X, node.Y, node.Z, 0)).Code.Path.Contains(code)))
+				{
+					Block block2 = this.blockAccess.GetBlock(new BlockPos(node.X, node.Y - 1, node.Z, 0));
+					if (this.canStep(block2))
+					{
+						return true;
+					}
+					node.Y--;
+				}
+			}
+			else
+			{
+				while (1f < stepHeight)
+				{
+					node.Y++;
+					if (this.canStep(this.blockAccess.GetBlock(new BlockPos(node.X, node.Y - 1, node.Z, 0))) && this.traversable(this.blockAccess.GetBlock(new BlockPos(node.X, node.Y, node.Z, 0))) && this.traversable(this.blockAccess.GetBlock(new BlockPos(node.X, node.Y + 1, node.Z, 0))))
+					{
+						return true;
+					}
+					stepHeight -= 1f;
+				}
+			}
+			return false;
+		}
 
-            NodesChecked = 0;
+		// Token: 0x06000126 RID: 294 RVA: 0x0000A6A4 File Offset: 0x000088A4
+		public BlockPos GetStartPos(Vec3d startPos)
+		{
+			BlockPos asBlockPos = startPos.AsBlockPos;
+			Block block = this.blockAccess.GetBlock(asBlockPos);
+			if (this.traversable(block))
+			{
+				return asBlockPos;
+			}
+			if (this.getDecimalPart(startPos.Z) < 0.5 && this.traversable(this.blockAccess.GetBlock(asBlockPos.NorthCopy(1))))
+			{
+				return asBlockPos.NorthCopy(1);
+			}
+			if (this.getDecimalPart(startPos.Z) > 0.5 && this.traversable(this.blockAccess.GetBlock(asBlockPos.SouthCopy(1))))
+			{
+				return asBlockPos.SouthCopy(1);
+			}
+			if (this.getDecimalPart(startPos.X) < 0.5 && this.traversable(this.blockAccess.GetBlock(asBlockPos.West())))
+			{
+				return asBlockPos;
+			}
+			if (this.getDecimalPart(startPos.X) > 0.5 && this.traversable(this.blockAccess.GetBlock(asBlockPos.East())))
+			{
+				return asBlockPos;
+			}
+			if (this.getDecimalPart(startPos.Z) < 0.5 && this.traversable(this.blockAccess.GetBlock(asBlockPos.NorthCopy(1))))
+			{
+				return asBlockPos.NorthCopy(1);
+			}
+			if (this.getDecimalPart(startPos.Z) > 0.5 && this.traversable(this.blockAccess.GetBlock(asBlockPos.SouthCopy(1))))
+			{
+				return asBlockPos.SouthCopy(1);
+			}
+			return startPos.AsBlockPos;
+		}
 
-            PathNode startNode = new PathNode(start);
-            PathNode targetNode = new PathNode(end);
+		// Token: 0x06000127 RID: 295 RVA: 0x00002C7F File Offset: 0x00000E7F
+		private double getDecimalPart(double number)
+		{
+			return number - Math.Truncate(number);
+		}
 
-            openSet.Clear();
-            closedSet.Clear();
+		// Token: 0x06000128 RID: 296 RVA: 0x0000A820 File Offset: 0x00008A20
+		protected virtual bool canStep(Block belowBlock)
+		{
+			return belowBlock.SideSolid[BlockFacing.UP.Index] || this.steppableCodes.Exists((string code) => belowBlock.Code.Path.Contains(code));
+		}
 
-            openSet.Add(startNode);
+		// Token: 0x06000129 RID: 297 RVA: 0x0000A870 File Offset: 0x00008A70
+		protected virtual bool traversable(Block block)
+		{
+			return block.CollisionBoxes == null || block.CollisionBoxes.Length == 0 || this.traversableCodes.Exists((string code) => block.Code.Path.Contains(code));
+		}
 
-            while (openSet.Count > 0)
-            {
-                if (NodesChecked++ > searchDepth) return null;
+		// Token: 0x0600012A RID: 298 RVA: 0x0000A8C0 File Offset: 0x00008AC0
+		private List<PathNode> retracePath(PathNode startNode, PathNode endNode)
+		{
+			int pathLength = endNode.pathLength;
+			List<PathNode> list = new List<PathNode>(pathLength + 1);
+			for (int i = 0; i < pathLength + 1; i++)
+			{
+				list.Add(null);
+			}
+			PathNode pathNode = endNode;
+			for (int j = pathLength; j >= 0; j--)
+			{
+				list[j] = pathNode;
+				pathNode = pathNode.Parent;
+			}
+			return list;
+		}
 
-                PathNode nearestNode = openSet.RemoveNearest();
-                closedSet.Add(nearestNode);
+		// Token: 0x0400008A RID: 138
+		protected ICoreAPI api;
 
-                if (nearestNode == targetNode || (allowReachAlmost && Math.Abs(nearestNode.X - targetNode.X) <= 1 && Math.Abs(nearestNode.Z - targetNode.Z) <= 1 && Math.Abs(nearestNode.Y - targetNode.Y) <= 2))
-                {
-                    return retracePath(startNode, nearestNode);
-                }
+		// Token: 0x0400008B RID: 139
+		protected ICachingBlockAccessor blockAccess;
 
-                foreach (var neighbourNode in findValidNeighbourNodes(nearestNode, targetNode, stepHeight, maxFallHeight))
-                {
-                    float extraCost = 0;
-                    PathNode existingNeighbourNode = openSet.TryFindValue(neighbourNode);
-                    if (!(existingNeighbourNode is null))   // we have to do a null check using "is null" due to foibles in PathNode.Equals()
-                    {
-                        // if it is already in openSet, update the gCost and parent if this nearestNode gives a shorter route to it
-                        float baseCostToNeighbour = nearestNode.gCost + nearestNode.distanceTo(neighbourNode);
-                        if (existingNeighbourNode.gCost > baseCostToNeighbour + 0.0001f)
-                        {
-                            if (traversable(neighbourNode, targetNode, stepHeight, maxFallHeight) && existingNeighbourNode.gCost > baseCostToNeighbour + extraCost + 0.0001f)
-                            {
-                                UpdateNode(nearestNode, existingNeighbourNode, extraCost);
-                            }
-                        }
-                    }
-                    else if (!closedSet.Contains(neighbourNode))
-                    {
-                        if (traversable(neighbourNode, targetNode, stepHeight, maxFallHeight))
-                        {
-                            UpdateNode(nearestNode, neighbourNode, extraCost);
-                            neighbourNode.hCost = neighbourNode.distanceTo(targetNode);
-                            openSet.Add(neighbourNode);
-                        }
-                    }
-                }
-            }
+		// Token: 0x0400008F RID: 143
+		public int NodesChecked;
 
-            return null;
-        }
+		// Token: 0x04000090 RID: 144
+		public const double centerOffsetX = 0.5;
 
-        protected virtual IEnumerable<PathNode> findValidNeighbourNodes(PathNode nearestNode, PathNode targetNode, float stepHeight, int maxFallHeight)
-        {
-            Block current = blockAccess.GetBlock(new BlockPos(nearestNode.X, nearestNode.Y, nearestNode.Z, 0));
-            if (climbableCodes.Exists(code => current.Code.Path.Contains(code)))
-            {
-                Cardinal climbableCard;
-                List<PathNode> neighbourNodes;
-                switch (current.Variant["side"])
-                {
-                    case "east":
-                        climbableCard = Cardinal.East;
-                        neighbourNodes = new List<PathNode>(new PathNode[] { new PathNode(nearestNode, Cardinal.North), new PathNode(nearestNode, Cardinal.South), new PathNode(nearestNode, Cardinal.West) });
-                        break;
-                    case "west":
-                        climbableCard = Cardinal.West;
-                        neighbourNodes = new List<PathNode>(new PathNode[] { new PathNode(nearestNode, Cardinal.North), new PathNode(nearestNode, Cardinal.East), new PathNode(nearestNode, Cardinal.South) });
-                        break;
-                    case "south":
-                        climbableCard = Cardinal.South;
-                        neighbourNodes = new List<PathNode>(new PathNode[] { new PathNode(nearestNode, Cardinal.North), new PathNode(nearestNode, Cardinal.East), new PathNode(nearestNode, Cardinal.West) });
-                        break;
-                    default:
-                        climbableCard = Cardinal.North;
-                        neighbourNodes = new List<PathNode>(new PathNode[] { new PathNode(nearestNode, Cardinal.East), new PathNode(nearestNode, Cardinal.South), new PathNode(nearestNode, Cardinal.West) });
-                        break;
-                }
-                int i = 1;
-                while (traversableCodes.Exists(code => blockAccess.GetBlock(new BlockPos(nearestNode.X, nearestNode.Y + i, nearestNode.Z, 0)).Code.Path.Contains(code)))
-                {
-                    i++;
-                }
-                var climbableNode = new PathNode(nearestNode, climbableCard);
-                climbableNode.Y += i;
-                neighbourNodes.Add(climbableNode);
-                return neighbourNodes;
-            }
-            else
-            {
-                return new PathNode[] { new PathNode(nearestNode, Cardinal.North), new PathNode(nearestNode, Cardinal.East), new PathNode(nearestNode, Cardinal.South), new PathNode(nearestNode, Cardinal.West) };
-            }
-        }
+		// Token: 0x04000091 RID: 145
+		public const double centerOffsetZ = 0.5;
 
+		// Token: 0x04000092 RID: 146
+		public PathNodeSet openSet = new PathNodeSet();
 
-
-        /// <summary>
-        /// Actually now only sets fields in neighbourNode as appropriate.  The calling code must add this to openSet if necessary.
-        /// </summary>
-        private void UpdateNode(PathNode nearestNode, PathNode neighbourNode, float extraCost)
-        {
-            neighbourNode.gCost = nearestNode.gCost + nearestNode.distanceTo(neighbourNode) + extraCost;
-            neighbourNode.Parent = nearestNode;
-            neighbourNode.pathLength = nearestNode.pathLength + 1;
-        }
-
-        protected virtual bool traversable(PathNode node, PathNode target, float stepHeight, int maxFallHeight)
-        {
-            if (target.X == node.X && target.Z == node.Z && target.Y == node.Y) { return true; }
-            if (traversable(blockAccess.GetBlock(new BlockPos(node.X, node.Y, node.Z, 0)))
-                && traversable(blockAccess.GetBlock(new BlockPos(node.X, node.Y + 1, node.Z, 0))))
-            {
-                for (; 0 <= maxFallHeight; maxFallHeight--)
-                {
-                    Block belowBlock = blockAccess.GetBlock(new BlockPos(node.X, node.Y - 1, node.Z, 0));
-                    if (canStep(belowBlock)) { return true; }
-                    if (!traversable(belowBlock)) { return false; };
-                    node.Y--;
-                }
-                while (climbableCodes.Exists(code => blockAccess.GetBlock(new BlockPos(node.X, node.Y, node.Z, 0)).Code.Path.Contains(code)))
-                {
-                    Block belowBlock = blockAccess.GetBlock(new BlockPos(node.X, node.Y - 1, node.Z, 0));
-                    if (canStep(belowBlock)) { return true; }
-                    node.Y--;
-                }
-            }
-            else
-            {
-                for (; 1f < stepHeight; stepHeight--)
-                {
-                    node.Y++;
-                    if (canStep(blockAccess.GetBlock(new BlockPos(node.X, node.Y - 1, node.Z, 0))) && traversable(blockAccess.GetBlock(new BlockPos(node.X, node.Y, node.Z, 0))) && traversable(blockAccess.GetBlock(new BlockPos(node.X, node.Y + 1, node.Z, 0))))
-                    {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-
-        public BlockPos GetStartPos(Vec3d startPos)
-        {
-            var result = startPos.AsBlockPos;
-            var startBlock = blockAccess.GetBlock(result);
-            if (traversable(startBlock))
-            {
-                return result;
-            }
-
-            if (getDecimalPart(startPos.Z) < 0.5 && traversable(blockAccess.GetBlock(result.NorthCopy())))
-            {
-                return result.NorthCopy();
-            }
-
-            if (getDecimalPart(startPos.Z) > 0.5 && traversable(blockAccess.GetBlock(result.SouthCopy())))
-            {
-                return result.SouthCopy();
-            }
-
-            if (getDecimalPart(startPos.X) < 0.5 && traversable(blockAccess.GetBlock(result.West())))
-            {
-                return result;
-            }
-
-            if (getDecimalPart(startPos.X) > 0.5 && traversable(blockAccess.GetBlock(result.East())))
-            {
-                return result;
-            }
-
-            if (getDecimalPart(startPos.Z) < 0.5 && traversable(blockAccess.GetBlock(result.NorthCopy())))
-            {
-                return result.NorthCopy();
-            }
-
-            if (getDecimalPart(startPos.Z) > 0.5 && traversable(blockAccess.GetBlock(result.SouthCopy())))
-            {
-                return result.SouthCopy();
-            }
-
-            return startPos.AsBlockPos;
-        }
-
-        private double getDecimalPart(double number)
-        {
-            return number - Math.Truncate(number);
-        }
-
-        protected virtual bool canStep(Block belowBlock)
-        {
-            return belowBlock.SideSolid[BlockFacing.UP.Index] || steppableCodes.Exists(code => belowBlock.Code.Path.Contains(code));
-        }
-
-        protected virtual bool traversable(Block block)
-        {
-            return block.CollisionBoxes == null || block.CollisionBoxes.Length == 0 || traversableCodes.Exists(code => block.Code.Path.Contains(code));
-        }
-
-        List<PathNode> retracePath(PathNode startNode, PathNode endNode)
-        {
-            int length = endNode.pathLength;
-            List<PathNode> path = new List<PathNode>(length + 1);
-            for (int i = 0; i < length + 1; i++) path.Add(null);  // pre-fill the path with dummy values to achieve the required Count, needed for assignment to path[i] later
-            PathNode currentNode = endNode;
-
-            for (int i = length; i >= 0; i--)
-            {
-                path[i] = currentNode;
-                currentNode = currentNode.Parent;
-            }
-
-            return path;
-        }
-    }
+		// Token: 0x04000093 RID: 147
+		public HashSet<PathNode> closedSet = new HashSet<PathNode>();
+	}
 }
