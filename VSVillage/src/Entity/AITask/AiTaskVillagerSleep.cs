@@ -133,7 +133,7 @@ public class AiTaskVillagerSleep : AiTaskBase
 		BlockPos startPos = pathfinder.GetStartPos(((Entity)entity).ServerPos.XYZ);
 		BlockPos asBlockPos = targetPos.AsBlockPos;
 		entity.World.Logger.Notification("Sleep: Pathing from " + startPos + " to target " + asBlockPos + " (bed " + targetBedPos + ")");
-		currentPath = pathfinder.FindPath(startPos, asBlockPos, 3000);
+		currentPath = pathfinder.FindPath(startPos, asBlockPos, 12000);
 		pathfinder.blockAccessor.Commit();
 		if (currentPath != null && currentPath.Count > 0)
 		{

@@ -34,7 +34,7 @@ public class VillagerAStar
 		blockAccess = api.World.GetCachingBlockAccessor(synchronize: true, relight: true);
 	}
 
-	public List<PathNode> FindPath(BlockPos start, BlockPos end, int maxFallHeight, float stepHeight, int searchDepth = 999, bool allowReachAlmost = true)
+	public List<PathNode> FindPath(BlockPos start, BlockPos end, int maxFallHeight, float stepHeight, int searchDepth = 9999, bool allowReachAlmost = true)
 	{
 		blockAccess.Begin();
 		NodesChecked = 0;
